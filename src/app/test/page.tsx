@@ -122,35 +122,25 @@ const SchedulePage = (locales?: string | string[], options?: Intl.DateTimeFormat
   const [auditoriums, setAuditoriums] = useState<AuditoriumsInfo[]|null>(null);
   const [allow_auditoriums, setAllowAuditoriums] = useState<AuditoriumsInfo[]|null>(null);
   const [university_unit, setUniversityUnit] = useState<UniversityUnit[] |null>(null);
+  const [loading, setLoading] = useState<Boolean>(true);
 
-
-  let defaultValueUniversityUnit = 1;
-  if (university_unit) {
-    defaultValueUniversityUnit = university_unit[0].id;
-  }
-  const [selectUniversityUnitStr, setSelectUniversityUnitStr] = useState<string|null>(String(defaultValueUniversityUnit));
-  // @ts-ignore
-  const [selectUniversityUnit, setSelectUniversityUnit] = useState<UniversityUnit|null>(university_unit?.find(el => el.id == defaultValueUniversityUnit));
-  const [week, setWeek] = useState<Date[]>(getWeekDates(new Date()));
-  const [dateCalendar, setDateCalendar] = useState<Date>(new Date());
-
-  useEffect(() => {
-    const fetchData = async (): Promise<void> => {
-      try {
-        // @ts-ignore
-        const response = await fetch(apiUrl_schedule);
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const jsonData = await response.json();
-        setSchedule(jsonData as Schedule);
-      } catch (error) {
-        console.error('Error fetching schedule:', error);
-      }
-    };
-
-    fetchData();
-  }, []);
+  // useEffect(() => {
+  //   const getScheduleByApi = async (): Promise<void> => {
+  //     try {
+  //       // @ts-ignore
+  //       const response = await fetch(apiUrl_schedule);
+  //       if (!response.ok) {
+  //         throw new Error(`HTTP error! Status: ${response.status}`);
+  //       }
+  //       const jsonData = await response.json();
+  //       setSchedule(jsonData as Schedule);
+  //     } catch (error) {
+  //       console.error('Error fetching schedule:', error);
+  //     }
+  //   };
+  //
+  //   getScheduleByApi();
+  // }, []);
 
 
   console.log(apiURL_auditorium);
@@ -193,64 +183,49 @@ const SchedulePage = (locales?: string | string[], options?: Intl.DateTimeFormat
     fetchData();
   }, []);
 
+  let defaultValueUniversityUnit = 1;
+  if (university_unit) {
+    defaultValueUniversityUnit = university_unit[0].id;
+  }
+  const [selectUniversityUnitStr, setSelectUniversityUnitStr] = useState<string|null>(String(defaultValueUniversityUnit));
+  // @ts-ignore
+  const [selectUniversityUnit, setSelectUniversityUnit] = useState<UniversityUnit|null>(university_unit?.find(el => el.id == defaultValueUniversityUnit));
+  const [week, setWeek] = useState<Date[]>(getWeekDates(new Date()));
+  const [dateCalendar, setDateCalendar] = useState<Date>(new Date());
+
+
   const handleSelectUniversityUnit = (event: any) => {
     setSelectUniversityUnitStr(event.target.value);
   }
 
-  const hanldeViewButton = () => {
-    if (!university_unit) return;
-    let unit = university_unit.find(el => el.id == Number(selectUniversityUnitStr));
-    if (!unit) {
-      console.error(`Error to get UniversityUnit object by id: ${selectUniversityUnitStr}`);
-      return;
-    }
-    //const week = getWeekDates(dateCalendar);
-    console.log(selectUniversityUnitStr);
-    console.log(unit);
-    console.log(dateCalendar);
-    setSelectUniversityUnit(unit);
-    setWeek(getWeekDates(dateCalendar));
-    let auds: AuditoriumsInfo[] = []
-    auditoriums?.forEach((element) => {
-      if (element.university_unit == unit?.id) {
-        auds.push(element);
-      }
-    });
-    console.log("auds:", auds);
-    setAllowAuditoriums(auds);
-    // console.log(week);
 
-  // apiUrl_schedule
-  //   get-booking-week/1/23_10_23-29_10_23/
-    const getBooking = "get-booking-current-week";
-
-    // @ts-ignore
-    const setBooking = `get-booking-week/${unit.id}/${formatDateToStrUrl(week[0])}-${formatDateToStrUrl(week[6])}`;
-    console.log(setBooking);
-    const new_api = apiUrl_schedule?.replace(getBooking, setBooking);
-    console.log("new api:", new_api);
-    setApiUrlSchedule(new_api);
-
-    console.log("Api: ", apiUrl_schedule);
-    const fetchData = async (): Promise<void> => {
+  const getScheduleByApi = async (url= apiUrl_schedule): Promise<void> => {
       try {
+        setLoading(true);
+        setSchedule(null);
         // @ts-ignore
-        const response = await fetch(apiUrl_schedule);
+        const response = await fetch(url);
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const jsonData = await response.json();
         setSchedule(jsonData as Schedule);
-        console.log("Schedule: ", schedule);
+
       } catch (error) {
         console.error('Error fetching schedule:', error);
       }
+      finally {
+        if (schedule) {
+          setLoading(false);
+          console.log("schedule:", schedule);
+        }
+      }
     };
 
-    fetchData();
-
-  }
-
+  // useEffect(() => {
+  //   setLoading(true);
+  //   getScheduleByApi();
+  // }, []);
   const dateCalendarHandler = (element: any) => {
     try {
       const date = new Date(element.target.value);
@@ -262,6 +237,46 @@ const SchedulePage = (locales?: string | string[], options?: Intl.DateTimeFormat
       setDateCalendar(new Date());
     }
   }
+  const hanldeViewButton = () => {
+    if (!university_unit) return;
+    let unit = university_unit.find(el => el.id == Number(selectUniversityUnitStr));
+    if (!unit) {
+      console.error(`Error to get UniversityUnit object by id: ${selectUniversityUnitStr}`);
+      return;
+    }
+    setLoading(true);
+    //const week = getWeekDates(dateCalendar);
+    console.log(selectUniversityUnitStr);
+    console.log(unit);
+    console.log("DateCalendar:", dateCalendar);
+    setSelectUniversityUnit(unit);
+    const current_week = getWeekDates(dateCalendar);
+    setWeek(current_week);
+    console.log(week);
+    let auds: AuditoriumsInfo[] = []
+    auditoriums?.forEach((element) => {
+      if (element.university_unit == unit?.id) {
+        auds.push(element);
+      }
+    });
+    console.log("auds:", auds);
+    setAllowAuditoriums(auds);
+    // console.log(week);
+
+    let url_week = process.env.URL_API_SHEDULE_WEEK;
+    const setBooking = `${formatDateToStrUrl(current_week[0])}-${formatDateToStrUrl(current_week[6])}/?format=json`;
+    console.log(setBooking);
+    url_week = url_week + setBooking;
+    console.log("url_week:", url_week);
+    setApiUrlSchedule(url_week);
+
+
+    console.log("Api: ", apiUrl_schedule);
+    getScheduleByApi(url_week);
+    setLoading(false);
+  }
+
+
 
   // @ts-ignore
   return (
@@ -279,7 +294,7 @@ const SchedulePage = (locales?: string | string[], options?: Intl.DateTimeFormat
               </select>
             </div>
             <div className={"col"}>
-              <input type={"date"} defaultValue={new Date().toDateInputValue()} onChange={dateCalendarHandler}></input>
+              <input type={"date"} defaultValue={new Date().toDateInputValue()} onChange={dateCalendarHandler} onInput={dateCalendarHandler}></input>
             </div>
             {/*<div className={"col"}>*/}
             {/*  <label className={"col-form-label"}><input type={"checkbox"} defaultChecked={true}/><b> На всю неделю</b></label>*/}
@@ -289,7 +304,7 @@ const SchedulePage = (locales?: string | string[], options?: Intl.DateTimeFormat
             </div>
           </div>
       ) : (<>Loading...</>)}
-      {schedule && auditoriums && university_unit ?  (
+      {schedule && auditoriums && university_unit && !loading ?  (
         <div>
 
 
@@ -305,7 +320,7 @@ const SchedulePage = (locales?: string | string[], options?: Intl.DateTimeFormat
             <thead>
               <tr>
                 <th className={"text-center"}>Дни недели</th>
-                {allow_auditoriums.map((aud) => (
+                {allow_auditoriums?.map((aud) => (
                     aud.university_unit == selectUniversityUnit?.id ? (
                         <>
                           <th key={aud.id} className={"text-center"}>{aud.name}</th>
@@ -320,7 +335,7 @@ const SchedulePage = (locales?: string | string[], options?: Intl.DateTimeFormat
                 <>
                 <tr>
                   <td>{day.toLocaleDateString("ru-RU", options)}</td>
-                  {allow_auditoriums.map((aud) => (
+                  {allow_auditoriums?.map((aud) => (
                       // aud.university_unit == selectUniversityUnit?.id ? (
                       //     <>
                       //
@@ -328,7 +343,7 @@ const SchedulePage = (locales?: string | string[], options?: Intl.DateTimeFormat
                       <>
                       <td>
                         <table className={"table table-bordered border-3"}>
-                          {schedule.results.map((item) => (
+                          {schedule?.results.map((item) => (
                               <>
                               {
                                 item.auditorium[0].id == aud.id  &&
