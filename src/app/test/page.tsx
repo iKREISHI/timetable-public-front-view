@@ -2,122 +2,16 @@
 // pages/schedule.tsx
 import React, { useState, useEffect } from 'react';
 
-const getWeekDates = (inputDate: Date): Date[] => {
-  const currentDate = new Date(inputDate);
-  const dayOfWeek = currentDate.getDay();
-  const startOfWeek = new Date(currentDate);
-  startOfWeek.setDate(currentDate.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1));
-  let week: Date[] = [];
-  for (let i = 0; i < 7; i++) {
-    const currentDay = new Date(startOfWeek);
-    currentDay.setDate(startOfWeek.getDate() + i);
-    week.push(new Date(currentDay));
-    // console.log(`${i} - ${week[i]}`);
-  }
-  return week;
-}
+import {
+    getWeekDates, formatDateToDDMMYYYY, formatDateToStrUrl,
+    getDayFromDate, getMonthFromDate, getYearFromDate,
+    getShortTime, options, toDateInputValue
+} from "./dateUtils";
 
-
-const formatDateToDDMMYYYY = (date: Date): string => {
-  const day = date.getDate().toString().padStart(2, '0');
-  const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Месяцы начинаются с 0
-  const year = date.getFullYear();
-  return `${day}-${month}-${year}`;
-}
-
-const formatDateToStrUrl = (date: Date): string => {
-  const day = date.getDate();
-  const month = (date.getMonth() + 1); // Месяцы начинаются с 0
-  const year = String(date.getFullYear()).replace("20", "");
-  return `${day}_${month}_${year}`
-}
-
-const getDayFromDate = (date: string): string => {
-  return date.split("-")[0];
-}
-
-const getMonthFromDate = (date: string): string => {
-  return date.split("-")[1];
-}
-
-const getYearFromDate = (date: string): string => {
-  return date.split("-")[2];
-}
-
-const getShortTime = (time: string): string => {
-  return `${time.split(":")[0]}:${time.split(":")[1]}`;
-}
-
-// @ts-ignore
-Date.prototype.toDateInputValue = (function() {
-    var local = new Date(this);
-    local.setMinutes(this.getMinutes() - this.getTimezoneOffset());
-    return local.toJSON().slice(0,10);
-});
-
-const toDateInputValue = (date: Date): any => {
-    let local = new Date(date);
-    local.setMinutes(date.getMinutes() - date.getTimezoneOffset());
-    return local.toJSON().slice(0, 10);
-}
-
-interface Organizer {
-  id: number;
-}
-
-interface Type {
-  id: number;
-  name: string;
-}
-
-interface Auditorium {
-  id: number;
-  name: string;
-}
-
-interface Event {
-  id: number;
-  name: string;
-  organizer: Organizer;
-  type: Type;
-  amount_people: number;
-  date: string;
-  start_time: string;
-  end_time: string;
-  auditorium: Auditorium[];
-  info: string;
-}
-
-interface Schedule {
-  start_week: string;
-  end_week: string;
-  results: Event[];
-}
-
-interface UniversityUnit {
-  id: number;
-  name: string;
-  abbreviation: string;
-  show_in_timetable: boolean;
-  default_show: boolean;
-}
-
-interface AuditoriumsInfo {
-  id: number;
-  name: string;
-  university_unit: number;
-  area: number;
-  capacity: number;
-  type: number;
-  building: number;
-}
-
-const options: Intl.DateTimeFormatOptions = {
-  weekday: "short",
-  year: "numeric",
-  month: "short",
-  day: "numeric",
-};
+import {
+    Organizer, Type, Auditorium, Event,
+    Schedule, UniversityUnit, AuditoriumsInfo,
+} from "./interfaces"
 
 const SchedulePage = () => {
 
