@@ -55,6 +55,12 @@ Date.prototype.toDateInputValue = (function() {
     return local.toJSON().slice(0,10);
 });
 
+const toDateInputValue = (date: Date): any => {
+    let local = new Date(date);
+    local.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+    return local.toJSON().slice(0, 10);
+}
+
 interface Organizer {
   id: number;
 }
@@ -106,14 +112,14 @@ interface AuditoriumsInfo {
   building: number;
 }
 
-const options = {
+const options: Intl.DateTimeFormatOptions = {
   weekday: "short",
   year: "numeric",
   month: "short",
   day: "numeric",
 };
 
-const SchedulePage = (locales?: string | string[], options?: Intl.DateTimeFormatOptions) => {
+const SchedulePage = () => {
 
   const [apiUrl_schedule, setApiUrlSchedule] = useState<string|undefined>(process.env.URL_API_SHEDULE);
   const [apiURL_auditorium, setApiUrlAuditorium] = useState<string|undefined>(process.env.URL_API_AUDITORIUM);
@@ -123,25 +129,6 @@ const SchedulePage = (locales?: string | string[], options?: Intl.DateTimeFormat
   const [allow_auditoriums, setAllowAuditoriums] = useState<AuditoriumsInfo[]|null>(null);
   const [university_unit, setUniversityUnit] = useState<UniversityUnit[] |null>(null);
   const [loading, setLoading] = useState<Boolean>(true);
-
-  // useEffect(() => {
-  //   const getScheduleByApi = async (): Promise<void> => {
-  //     try {
-  //       // @ts-ignore
-  //       const response = await fetch(apiUrl_schedule);
-  //       if (!response.ok) {
-  //         throw new Error(`HTTP error! Status: ${response.status}`);
-  //       }
-  //       const jsonData = await response.json();
-  //       setSchedule(jsonData as Schedule);
-  //     } catch (error) {
-  //       console.error('Error fetching schedule:', error);
-  //     }
-  //   };
-  //
-  //   getScheduleByApi();
-  // }, []);
-
 
   console.log(apiURL_auditorium);
   useEffect(() => {
@@ -221,11 +208,6 @@ const SchedulePage = (locales?: string | string[], options?: Intl.DateTimeFormat
         }
       }
     };
-
-  // useEffect(() => {
-  //   setLoading(true);
-  //   getScheduleByApi();
-  // }, []);
   const dateCalendarHandler = (element: any) => {
     try {
       const date = new Date(element.target.value);
@@ -294,11 +276,8 @@ const SchedulePage = (locales?: string | string[], options?: Intl.DateTimeFormat
               </select>
             </div>
             <div className={"col"}>
-              <input type={"date"} defaultValue={new Date().toDateInputValue()} onChange={dateCalendarHandler} onInput={dateCalendarHandler}></input>
+              <input type={"date"} defaultValue={toDateInputValue(new Date())} onChange={dateCalendarHandler} onInput={dateCalendarHandler}></input>
             </div>
-            {/*<div className={"col"}>*/}
-            {/*  <label className={"col-form-label"}><input type={"checkbox"} defaultChecked={true}/><b> На всю неделю</b></label>*/}
-            {/*</div>*/}
             <div className={"col"}>
               <button className={"btn btn-success"} onClick={hanldeViewButton}>Показать</button>
             </div>
@@ -336,10 +315,6 @@ const SchedulePage = (locales?: string | string[], options?: Intl.DateTimeFormat
                 <tr>
                   <td>{day.toLocaleDateString("ru-RU", options)}</td>
                   {allow_auditoriums?.map((aud) => (
-                      // aud.university_unit == selectUniversityUnit?.id ? (
-                      //     <>
-                      //
-                      //     </>) : (<></>)
                       <>
                       <td>
                         <table className={"table table-bordered border-3"}>
@@ -374,7 +349,7 @@ const SchedulePage = (locales?: string | string[], options?: Intl.DateTimeFormat
         </div>
 
       ) : (
-        <p>Loading schedule...</p>
+        <></>
       )}
     </div>
   );
