@@ -55,7 +55,10 @@ const SchedulePage = () => {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const jsonData = await response.json();
-        setUniversityUnit(jsonData as UniversityUnit[]);
+        let data = jsonData as UniversityUnit[];
+        data.sort((a, b) => a.id - b.id);
+        console.log("sorted: ", data);
+        setUniversityUnit(data);
       }
       catch (error) {
         console.error('Error fetching schedule:', error);
