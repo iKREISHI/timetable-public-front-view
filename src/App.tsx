@@ -38,7 +38,7 @@ const App: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
 
     console.log("apiUrlSchedule", apiUrlSchedule);
-    console.log("apiURLUniversityUnit", apiURLUniversityUnit);
+    console.log("apiURLAuditorium", apiURLAuditorium);
     useEffect(() => {
         const fetchData = async (): Promise<void> => {
             try {
@@ -56,6 +56,7 @@ const App: React.FC = () => {
         };
         fetchData();
     }, [apiURLAuditorium]);
+    console.log("auditoriums:", auditoriums);
 
     useEffect(() => {
         const fetchData = async (): Promise<void> => {
@@ -94,25 +95,6 @@ const App: React.FC = () => {
         setSelectUniversityUnitStr(event.target.value);
     };
 
-    // const getScheduleByApi = async (url: string = apiUrlSchedule || ''): Promise<void> => {
-    //     try {
-    //         setLoading(true);
-    //         setSchedule(null);
-    //         const response = await fetch(url);
-    //         if (!response.ok) {
-    //             throw new Error(`HTTP error! Status: ${response.status}`);
-    //         }
-    //         const jsonData = await response.json();
-    //         setSchedule(jsonData as Schedule);
-    //     } catch (error) {
-    //         console.error('Error fetching schedule:', error);
-    //     } finally {
-    //         if (schedule) {
-    //             setLoading(false);
-    //             console.log('schedule:', schedule);
-    //         }
-    //     }
-    // };
     const getScheduleByApi = async (url: string = apiUrlSchedule || ''): Promise<void> => {
         try {
             setLoading(true);
@@ -152,6 +134,7 @@ const App: React.FC = () => {
             console.error(`Error to get UniversityUnit object by id: ${selectUniversityUnitStr}`);
             return;
         }
+        setSelectUniversityUnit(unit);
         setLoading(true);
         const current_week = getWeekDates(dateCalendar);
         setWeek(current_week);
@@ -164,7 +147,8 @@ const App: React.FC = () => {
         });
         console.log('auds:', auds);
         setAllowAuditoriums(auds);
-
+        console.log("-- selectUniversityUnit: ", selectUniversityUnit);
+        console.log("-- allow auds: ", allowAuditoriums);
         let url_week = process.env.REACT_APP_URL_API_SHEDULE_WEEK!;
         console.log("url_week: ", url_week);
         const setBooking = `${formatDateToStrUrl(current_week[0])}-${formatDateToStrUrl(
