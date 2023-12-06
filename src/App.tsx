@@ -21,6 +21,10 @@ import {
     AuditoriumsInfo,
 } from './interfaces';
 
+import {
+    Button, Modal
+} from "react-bootstrap";
+
 const App: React.FC = () => {
     const [apiUrlSchedule, setApiUrlSchedule] = useState<string | undefined>(
         process.env.REACT_APP_URL_API_SHEDULE
@@ -36,6 +40,9 @@ const App: React.FC = () => {
     const [allowAuditoriums, setAllowAuditoriums] = useState<AuditoriumsInfo[] | null>(null);
     const [universityUnit, setUniversityUnit] = useState<UniversityUnit[] | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
+    const [apiScheduleItem, setApiScheduleItem] = useState<string| null >(
+        process.env.REACT_APP_URL_API_SCHEDULE_ITEM || null
+    );
 
     console.log("apiUrlSchedule", apiUrlSchedule);
     console.log("apiURLAuditorium", apiURLAuditorium);
@@ -90,6 +97,9 @@ const App: React.FC = () => {
     );
     const [week, setWeek] = useState<Date[]>(getWeekDates(new Date()));
     const [dateCalendar, setDateCalendar] = useState<Date>(new Date());
+    const [showModalInfo, setShowModalInfo] = useState<boolean>(false);
+    const [modalInfo, setModalInfo] = useState<Event | null>(null);
+    const [modalInfoUrl, setModalInfoUrl] = useState<string>("");
 
     const handleSelectUniversityUnit = (event: ChangeEvent<HTMLSelectElement>) => {
         setSelectUniversityUnitStr(event.target.value);
@@ -127,6 +137,11 @@ const App: React.FC = () => {
         }
     };
 
+    const checkAuditoriumSchedule = (aud: Auditorium) => {
+
+        return !(schedule?.results.find((el) => el.auditorium[0].id === aud.id) === undefined);
+    }
+
     const hanldeViewButton = () => {
         if (!universityUnit) return;
         let unit = universityUnit.find((el) => el.id === Number(selectUniversityUnitStr));
@@ -139,14 +154,7 @@ const App: React.FC = () => {
         const current_week = getWeekDates(dateCalendar);
         setWeek(current_week);
         console.log('week:', week);
-        let auds: AuditoriumsInfo[] = [];
-        auditoriums?.forEach((element) => {
-            if (element.university_unit === unit?.id) {
-                auds.push(element);
-            }
-        });
-        console.log('auds:', auds);
-        setAllowAuditoriums(auds);
+
         console.log("-- selectUniversityUnit: ", selectUniversityUnit);
         console.log("-- allow auds: ", allowAuditoriums);
         let url_week = process.env.REACT_APP_URL_API_SHEDULE_WEEK!;
@@ -161,98 +169,166 @@ const App: React.FC = () => {
 
         console.log('Api: ', apiUrlSchedule);
         getScheduleByApi(url_week);
+
+        let auds: AuditoriumsInfo[] = [];
+        console.log("Check 1: ", schedule);
+        auditoriums?.forEach((element) => {
+            if (element.university_unit === unit?.id) {
+                console.log("Check: ", checkAuditoriumSchedule(element), element.name);
+                auds.push(element);
+            }
+        });
+        console.log('auds:', auds);
+        setAllowAuditoriums(auds);
         setLoading(false);
     };
 
+    const getScheduleItemInfo = (url: string): Promise<any> => {
+        return fetch(url)
+            .then((response) => {
+                console.log("response", response);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then((jsonData) => {
+                setModalInfo(jsonData as Event);
+                return jsonData as Event;
+            })
+            .catch((error) => {
+                console.error('Error fetching schedule:', error);
+            })
+            .finally(() => {
+                console.log('schedule item:', modalInfo);
+            });
+    };
+
+    useEffect(() => {
+        getScheduleItemInfo(modalInfoUrl)
+            .then((data) => {
+                setModalInfo(data);
+            });
+    }, [modalInfoUrl]);
+    const handleCloseModalInfo = () => {
+        setShowModalInfo(false);
+    }
+    const handleShowModalInfo = (item_id: Number) => {
+
+        let url = apiScheduleItem + String(item_id) + "/?format=json";
+        setModalInfoUrl(url);
+        console.log("Item ID = ", item_id, url);
+        getScheduleItemInfo(url).then(r => {
+            console.log("Item item", r);
+            const t = async () => {
+                await setModalInfo(r)
+            };
+            t();
+        });
+        console.log("Item schedule", modalInfo);
+
+        setShowModalInfo(true);
+    }
+
     return (
-        <div className={'container-xxl'}>
-            <h2 className={'text-center'}>Расписание</h2>
-            {auditoriums && universityUnit ? (
-                <div className={'row align-items-center'}>
-                    <div className={'col'}>
-                        <select onChange={handleSelectUniversityUnit} value={selectUniversityUnitStr || ''}>
-                            {universityUnit?.map((unit) => (
-                                <option key={unit.id} value={unit.id}>
-                                    {unit.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                    <div className={'col'}>
-                        <input
-                            type={'date'}
-                            defaultValue={toDateInputValue(new Date())}
-                            onChange={dateCalendarHandler}
-                            onInput={dateCalendarHandler}
-                        />
-                    </div>
-                    <div className={'col'}>
-                        <button className={'btn btn-success'} onClick={hanldeViewButton}>
-                            Показать
-                        </button>
-                    </div>
-                </div>
-            ) : (
-                <>Loading...</>
-            )}
-            {schedule && auditoriums && universityUnit && !loading ? (
-                <div>
-                    <br />
-                    <p>Start Week: {getWeekDates(dateCalendar)[0].toDateString()}</p>
-                    <p>End Week: {getWeekDates(dateCalendar)[6].toDateString()}</p>
-                    <ul>
-                        {universityUnit?.map((unit) => (
-                            <li key={unit.id}>{unit.name}</li>
-                        ))}
-                    </ul>
-                    <table className={'table table-bordered border-5 border-dark'}>
-                        <thead>
-                        <tr>
-                            <th className={'text-center'}>Дни недели</th>
-                            {allowAuditoriums?.map((aud) =>
-                                aud.university_unit === selectUniversityUnit?.id ? (
-                                    <th key={aud.id} className={'text-center'}>
-                                        {aud.name}
-                                    </th>
-                                ) : null
-                            )}
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {week.map((day) => (
-                            <tr key={day.toDateString()}>
-                                <td>{day.toLocaleDateString('ru-RU', options)}</td>
-                                {allowAuditoriums?.map((aud) => (
-                                    <td key={aud.id}>
-                                        <table className={'table table-bordered border-3'}>
-                                            {schedule?.results.map((item) =>
-                                                item.auditorium[0].id === aud.id &&
-                                                getDayFromDate(formatDateToDDMMYYYY(day)) ===
-                                                item.date.split('-')[0] &&
-                                                getMonthFromDate(formatDateToDDMMYYYY(day)) ===
-                                                item.date.split('-')[1] &&
-                                                getYearFromDate(formatDateToDDMMYYYY(day)) ===
-                                                item.date.split('-')[2] ? (
-                                                    <tr key={item.id}>
-                                                        <td className={'text-center'}>
-                                                            {item.name} <br />
-                                                            {getShortTime(item.start_time)} - {getShortTime(item.end_time)}<br />
-                                                        </td>
-                                                    </tr>
-                                                ) : null
-                                            )}
-                                        </table>
-                                    </td>
+        <>
+            <div className={'container-xxl'}>
+                <h2 className={'text-center'}>Расписание</h2>
+                {auditoriums && universityUnit ? (
+                    <div className={'row align-items-center'}>
+                        <div className={'col'}>
+                            <select onChange={handleSelectUniversityUnit} value={selectUniversityUnitStr || ''}>
+                                {universityUnit?.map((unit) => (
+                                    <option key={unit.id} value={unit.id}>
+                                        {unit.name}
+                                    </option>
                                 ))}
+                            </select>
+                        </div>
+                        <div className={'col'}>
+                            <input
+                                type={'date'}
+                                defaultValue={toDateInputValue(new Date())}
+                                onChange={dateCalendarHandler}
+                                onInput={dateCalendarHandler}/>
+                        </div>
+                        <div className={'col'}>
+                            <button className={'btn btn-success'} onClick={hanldeViewButton}>
+                                Показать
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <>Loading...</>
+                )}
+                {schedule && auditoriums && universityUnit && !loading ? (
+                    <div>
+                        <br/>
+                        <table className={'table table-bordered border-2'}>
+                            <thead>
+                            <tr>
+                                <th className={'text-center'}>Дни недели</th>
+                                {allowAuditoriums?.map((aud) => aud.university_unit === selectUniversityUnit?.id ? (
+                                        <th key={aud.id} className={'text-center'}>
+                                            {aud.name}
+                                        </th>
+                                    ) : null
+                                )}
                             </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                </div>
-            ) : (
-                <></>
-            )}
-        </div>
+                            </thead>
+                            <tbody>
+                            {week.map((day) => (
+                                <tr key={day.toDateString()}>
+                                    <td>{day.toLocaleDateString('ru-RU', options)}</td>
+                                    {allowAuditoriums?.map((aud) => (
+                                        <td key={aud.id}>
+                                            <table className={'table table-bordered border-3'}>
+                                                <tbody>
+                                                {schedule?.results.map((item) => item.auditorium[0].id === aud.id &&
+                                                    getDayFromDate(formatDateToDDMMYYYY(day)) ===
+                                                    item.date.split('-')[0] &&
+                                                    getMonthFromDate(formatDateToDDMMYYYY(day)) ===
+                                                    item.date.split('-')[1] &&
+                                                    getYearFromDate(formatDateToDDMMYYYY(day)) ===
+                                                    item.date.split('-')[2] ? (
+                                                        <tr key={item.id}>
+                                                            <td
+                                                                className={'text-center'} id={String(item.id)}
+                                                                onClick={() => handleShowModalInfo(Number(item.id))}
+                                                            >
+                                                                {item.name} <br/>
+                                                                {getShortTime(item.start_time)} - {getShortTime(item.end_time)}<br/>
+                                                            </td>
+                                                        </tr>
+                                                    ) : null
+                                                )}
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    ))}
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                    </div>
+                ) : (
+                    <></>
+                )}
+            </div>
+            <Modal show={showModalInfo} onHide={handleCloseModalInfo}>
+                <Modal.Header closeButton>
+                    <Modal.Title>{modalInfo?.name}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>Тип: {modalInfo?.type.name}</p>
+                    <p></p>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseModalInfo}>
+                        Закрыть
+                    </Button>
+                </Modal.Footer>
+            </Modal></>
     );
 };
 
