@@ -241,6 +241,12 @@ const App: React.FC = () => {
         setShowModalInfo(true);
     }
 
+    const scheduleItemColor = (id:number):string => {
+        const item = schedule?.results.find((el) => el.id === id);
+
+        return "";
+    }
+
     return (
         <>
             <div className={'container-xxl'}>
@@ -292,9 +298,10 @@ const App: React.FC = () => {
                             {week.map((day) => (
                                 <tr key={day.toDateString()}>
                                     <td>{day.toLocaleDateString('ru-RU', options)}</td>
-                                    {allowAuditoriums?.map((aud) => checkAuditoriumSchedule(aud) ? (
+                                    {allowAuditoriums?.map((aud) =>
+                                        checkAuditoriumSchedule(aud) ? (
                                         <td key={aud.id}>
-                                            <table className={'table table-bordered border-3'}>
+                                            <table className={'table table-bordered'}>
                                                 <tbody>
                                                 {schedule?.results.map((item) => item.auditorium[0].id === aud.id &&
                                                     getDayFromDate(formatDateToDDMMYYYY(day)) ===
@@ -302,7 +309,9 @@ const App: React.FC = () => {
                                                     getMonthFromDate(formatDateToDDMMYYYY(day)) ===
                                                     item.date.split('-')[1] &&
                                                     getYearFromDate(formatDateToDDMMYYYY(day)) ===
-                                                    item.date.split('-')[2] ? (
+                                                    item.date.split('-')[2]
+
+                                                    ? (
                                                         <tr key={item.id}>
                                                             <td
                                                                 className={'text-center'} id={String(item.id)}
@@ -334,7 +343,11 @@ const App: React.FC = () => {
                 </Modal.Header>
                 <Modal.Body>
                     <p>Тип: {modalInfo?.type.name}</p>
-                    <p></p>
+                    <p>Дата: {modalInfo?.date}</p>
+                    <p>Время начала: {modalInfo?.start_time.slice(0, -3)}</p>
+                    <p>Время окончания: {modalInfo?.end_time.slice(0, -3)}</p>
+                    <p>Аудитория: {modalInfo?.auditorium.map((el) => String(el.name) + " ")}</p>
+                    <p>Дополнительная информация: {modalInfo?.info}</p>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleCloseModalInfo}>
