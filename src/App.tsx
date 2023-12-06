@@ -116,6 +116,7 @@ const App: React.FC = () => {
             }
             const jsonData = await response.json();
             setSchedule(jsonData as Schedule);
+            setAuditoriumSchedule();
         } catch (error) {
             console.error('Error fetching schedule:', error);
         } finally {
@@ -142,6 +143,25 @@ const App: React.FC = () => {
         return !(schedule?.results.find((el) => el.auditorium[0].id === aud.id) === undefined);
     }
 
+    const setAuditoriumSchedule = () => {
+        let unit = universityUnit?.find((el) => el.id === Number(selectUniversityUnitStr));
+        if (!unit) {
+            console.error(`Error to get UniversityUnit object by id: ${selectUniversityUnitStr}`);
+            return;
+        }
+        setSelectUniversityUnit(unit);
+        let auds: AuditoriumsInfo[] = [];
+        console.log("Check 1: ", schedule);
+        auditoriums?.forEach((element) => {
+            if (element.university_unit === unit?.id) {
+                console.log("Check: ", checkAuditoriumSchedule(element), element.name);
+                auds.push(element);
+            }
+        });
+        console.log('auds:', auds);
+        setAllowAuditoriums(auds);
+    }
+
     const hanldeViewButton = () => {
         if (!universityUnit) return;
         let unit = universityUnit.find((el) => el.id === Number(selectUniversityUnitStr));
@@ -166,20 +186,11 @@ const App: React.FC = () => {
         url_week = url_week + setBooking;
         console.log('url_week:', url_week);
         setApiUrlSchedule(url_week);
-
+        setAuditoriumSchedule();
         console.log('Api: ', apiUrlSchedule);
         getScheduleByApi(url_week);
 
-        let auds: AuditoriumsInfo[] = [];
-        console.log("Check 1: ", schedule);
-        auditoriums?.forEach((element) => {
-            if (element.university_unit === unit?.id) {
-                console.log("Check: ", checkAuditoriumSchedule(element), element.name);
-                auds.push(element);
-            }
-        });
-        console.log('auds:', auds);
-        setAllowAuditoriums(auds);
+
         setLoading(false);
     };
 
@@ -268,7 +279,8 @@ const App: React.FC = () => {
                             <thead>
                             <tr>
                                 <th className={'text-center'}>Дни недели</th>
-                                {allowAuditoriums?.map((aud) => aud.university_unit === selectUniversityUnit?.id ? (
+                                {allowAuditoriums?.map((aud) => aud.university_unit === selectUniversityUnit?.id
+                                    && checkAuditoriumSchedule(aud) ? (
                                         <th key={aud.id} className={'text-center'}>
                                             {aud.name}
                                         </th>
@@ -280,7 +292,7 @@ const App: React.FC = () => {
                             {week.map((day) => (
                                 <tr key={day.toDateString()}>
                                     <td>{day.toLocaleDateString('ru-RU', options)}</td>
-                                    {allowAuditoriums?.map((aud) => (
+                                    {allowAuditoriums?.map((aud) => checkAuditoriumSchedule(aud) ? (
                                         <td key={aud.id}>
                                             <table className={'table table-bordered border-3'}>
                                                 <tbody>
@@ -305,7 +317,8 @@ const App: React.FC = () => {
                                                 </tbody>
                                             </table>
                                         </td>
-                                    ))}
+                                    ):null
+                                    )}
                                 </tr>
                             ))}
                             </tbody>
