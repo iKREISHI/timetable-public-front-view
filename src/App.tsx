@@ -231,21 +231,31 @@ const App: React.FC = () => {
         console.log("Item ID = ", item_id, url);
         getScheduleItemInfo(url).then(r => {
             console.log("Item item", r);
-            const t = async () => {
-                await setModalInfo(r)
-            };
-            t();
+            setModalInfo(r)
         });
         console.log("Item schedule", modalInfo);
 
         setShowModalInfo(true);
     }
 
-    const scheduleItemColor = (id:number):string => {
+    const setScheduleItemColor = (id: number): string => {
         const item = schedule?.results.find((el) => el.id === id);
+        if (!item) {
+            return "";
+        }
 
-        return "";
-    }
+        let today = new Date();
+        let day = new Date(`${item.date.split("-").reverse().join("-")}T00:00:00`);
+        today.setHours(0, 0, 0, 0);
+
+        if (day.getTime() > today.getTime()) {
+            return "table-success";
+        } else if (day.getTime() < today.getTime()) {
+            return "table-secondary";
+        } else {
+            return "table-danger";
+        }
+    };
 
     return (
         <>
@@ -301,7 +311,7 @@ const App: React.FC = () => {
                                     {allowAuditoriums?.map((aud) =>
                                         checkAuditoriumSchedule(aud) ? (
                                         <td key={aud.id}>
-                                            <table className={'table table-bordered'}>
+                                            <table className={'table'}>
                                                 <tbody>
                                                 {schedule?.results.map((item) => item.auditorium[0].id === aud.id &&
                                                     getDayFromDate(formatDateToDDMMYYYY(day)) ===
@@ -314,7 +324,7 @@ const App: React.FC = () => {
                                                     ? (
                                                         <tr key={item.id}>
                                                             <td
-                                                                className={'text-center'} id={String(item.id)}
+                                                                className={`text-center + ${setScheduleItemColor(Number(item.id))}`} id={String(item.id)}
                                                                 onClick={() => handleShowModalInfo(Number(item.id))}
                                                             >
                                                                 {item.name} <br/>
