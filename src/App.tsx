@@ -35,7 +35,7 @@ import {
     Thead,
     Tr,
     Input, ModalCloseButton, ModalContent, ModalOverlay,
-    Container, Flex, Spacer, Heading, ButtonGroup
+    Container, Flex, Spacer, Heading, ButtonGroup, Text
 } from '@chakra-ui/react';
 
 const App: React.FC = () => {
@@ -260,7 +260,6 @@ const App: React.FC = () => {
         if (!item) {
             return "";
         }
-
         let today = new Date();
         let day = new Date(`${item.date.split("-").reverse().join("-")}T00:00:00`);
         today.setHours(0, 0, 0, 0);
@@ -275,33 +274,19 @@ const App: React.FC = () => {
     };
 
     return (
-        <Box>
+        <Box fontSize={15} fontFamily={'var(--bs-body-font-family)'}>
+            <br/>
             {auditoriums && universityUnit ? (
-                // <Box>
-                //     <Box className={'row align-items-center'}>
-                //         <Box className={'col'}>
-                //             <b style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                //                 {universityUnit[0].name}
-                //             </b>
-                //         </Box>
-                //         <Box className={'col'}>
-                //             <Input type={'date'} defaultValue={toDateInputValue(new Date())} onChange={dateCalendarHandler} />
-                //         </Box>
-                //         <Box className={'col'}>
-                //             <Button colorScheme="teal" onClick={hanldeViewButton}>
-                //                 Показать
-                //             </Button>
-                //         </Box>
-                //     </Box>
-                // </Box>
                 <Flex minWidth='max-content' alignItems='center' gap='2'>
                     <Box p='2'>
-                        <Heading size='md'>{universityUnit[0].name}</Heading>
+                        <Heading fontSize='3xl'>{universityUnit[0].name}</Heading>
                     </Box>
                     <Spacer />
                     <ButtonGroup gap='2'>
                         <Input type={'date'} defaultValue={toDateInputValue(new Date())} onChange={dateCalendarHandler} />
-                        <Button colorScheme="teal" onClick={hanldeViewButton}>Показать</Button>
+                        <Button colorScheme="green" onClick={hanldeViewButton} >
+                            Показать
+                        </Button>
                     </ButtonGroup>
                 </Flex>
             ) : (
@@ -326,7 +311,7 @@ const App: React.FC = () => {
                                     )}
                                 </Tr>
                             </Thead>
-                            <Tbody>
+                            <Tbody fontSize='2xl'>
                                 {week.map((day) => (
                                     <Tr key={day.toDateString()}>
                                         <Td>{day.toLocaleDateString('ru-RU', options)}</Td>
@@ -349,9 +334,12 @@ const App: React.FC = () => {
                                                                                 id={String(item.id)}
                                                                                 onClick={() => handleShowModalInfo(Number(item.id))}
                                                                                 textAlign={"center"}
+
                                                                             >
-                                                                                {item.name} <br />
-                                                                                {getShortTime(item.start_time)} - {getShortTime(item.end_time)}<br />
+                                                                                <Text>
+                                                                                    {item.name} <br />
+                                                                                    {getShortTime(item.start_time)} - {getShortTime(item.end_time)}<br />
+                                                                                </Text>
                                                                             </Td>
                                                                         </Tr>
                                                                     ) : null
