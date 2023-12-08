@@ -265,15 +265,22 @@ const App: React.FC = () => {
         <>
             <div className={'container-xxl'}>
                 {auditoriums && universityUnit ? (
-                    <div className={'row align-items-center'}>
+                    <div>
+                    <br/>
+                        <div className={'row align-items-center'}>
+                        <br/>
                         <div className={'col'}>
-                            <select onChange={handleSelectUniversityUnit} value={selectUniversityUnitStr || ''}>
-                                {universityUnit?.map((unit) => (
-                                    <option key={unit.id} value={unit.id}>
-                                        {unit.name}
-                                    </option>
-                                ))}
-                            </select>
+
+                            {/*<select onChange={handleSelectUniversityUnit} value={selectUniversityUnitStr || ''}>*/}
+                            {/*    {universityUnit?.map((unit) => (*/}
+                            {/*        <option key={unit.id} value={unit.id}>*/}
+                            {/*            {unit.name}*/}
+                            {/*        </option>*/}
+                            {/*    ))}*/}
+                            {/*</select>*/}
+                            <b style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                {universityUnit[0].name}
+                            </b>
                         </div>
                         <div className={'col'}>
                             <input
@@ -288,7 +295,8 @@ const App: React.FC = () => {
                             </button>
                         </div>
                     </div>
-                ) : (
+                    </div>
+                        ) : (
                     <>Loading...</>
                 )}
                 {schedule && auditoriums && universityUnit && !loading ? (
@@ -297,7 +305,9 @@ const App: React.FC = () => {
                         <table className={'table table-bordered border-2'}>
                             <thead>
                             <tr>
-                                <th className={'text-center'}>Дни недели</th>
+                                <th className={'text-center'}
+                                    style={{width: '7%'}}>Дни недели
+                                </th>
                                 {allowAuditoriums?.map((aud) => aud.university_unit === selectUniversityUnit?.id
                                     && checkAuditoriumSchedule(aud) ? (
                                         <th key={aud.id} className={'text-center'}>
