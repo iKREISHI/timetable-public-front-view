@@ -11,6 +11,9 @@ const root = ReactDOM.createRoot(
 
 );
 document.title = "Technopark Schedule";
+window.addEventListener('load', function () {
+    window.postMessage(document.documentElement.scrollHeight, '*');
+});
 root.render(
   <React.StrictMode>
     <App />
