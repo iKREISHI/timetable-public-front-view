@@ -22,8 +22,21 @@ import {
 } from './interfaces';
 
 import {
-    Button, Modal
-} from "react-bootstrap";
+    Box,
+    Button,
+    Modal,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+    Table,
+    Tbody,
+    Td,
+    Th,
+    Thead,
+    Tr,
+    Input, ModalCloseButton, ModalContent, ModalOverlay,
+    Container, Flex, Spacer, Heading, ButtonGroup
+} from '@chakra-ui/react';
 
 const App: React.FC = () => {
     const [apiUrlSchedule, setApiUrlSchedule] = useState<string | undefined>(
@@ -101,9 +114,9 @@ const App: React.FC = () => {
     const [modalInfo, setModalInfo] = useState<Event | null>(null);
     const [modalInfoUrl, setModalInfoUrl] = useState<string>("");
 
-    const handleSelectUniversityUnit = (event: ChangeEvent<HTMLSelectElement>) => {
-        setSelectUniversityUnitStr(event.target.value);
-    };
+    // const handleSelectUniversityUnit = (event: ChangeEvent<HTMLSelectElement>) => {
+    //     setSelectUniversityUnitStr(event.target.value);
+    // };
 
     const getScheduleByApi = async (url: string = apiUrlSchedule || ''): Promise<void> => {
         try {
@@ -253,131 +266,133 @@ const App: React.FC = () => {
         today.setHours(0, 0, 0, 0);
 
         if (day.getTime() > today.getTime()) {
-            return "table-success";
+            return "#d1e7dd";
         } else if (day.getTime() < today.getTime()) {
-            return "table-secondary";
+            return "#e2e3e5";
         } else {
-            return "table-danger";
+            return "#f8d7da";
         }
     };
 
     return (
-        <>
-            <div className={'container-xxl'}>
-                {auditoriums && universityUnit ? (
-                    <div>
+        <Box>
+            {auditoriums && universityUnit ? (
+                // <Box>
+                //     <Box className={'row align-items-center'}>
+                //         <Box className={'col'}>
+                //             <b style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                //                 {universityUnit[0].name}
+                //             </b>
+                //         </Box>
+                //         <Box className={'col'}>
+                //             <Input type={'date'} defaultValue={toDateInputValue(new Date())} onChange={dateCalendarHandler} />
+                //         </Box>
+                //         <Box className={'col'}>
+                //             <Button colorScheme="teal" onClick={hanldeViewButton}>
+                //                 Показать
+                //             </Button>
+                //         </Box>
+                //     </Box>
+                // </Box>
+                <Flex minWidth='max-content' alignItems='center' gap='2'>
+                    <Box p='2'>
+                        <Heading size='md'>{universityUnit[0].name}</Heading>
+                    </Box>
+                    <Spacer />
+                    <ButtonGroup gap='2'>
+                        <Input type={'date'} defaultValue={toDateInputValue(new Date())} onChange={dateCalendarHandler} />
+                        <Button colorScheme="teal" onClick={hanldeViewButton}>Показать</Button>
+                    </ButtonGroup>
+                </Flex>
+            ) : (
+                <>Loading...</>
+            )}
+            {schedule && auditoriums && universityUnit && !loading ? (
+                <Box>
                     <br/>
-                        <div className={'row align-items-center'}>
-                        <br/>
-                        <div className={'col'}>
-
-                            {/*<select onChange={handleSelectUniversityUnit} value={selectUniversityUnitStr || ''}>*/}
-                            {/*    {universityUnit?.map((unit) => (*/}
-                            {/*        <option key={unit.id} value={unit.id}>*/}
-                            {/*            {unit.name}*/}
-                            {/*        </option>*/}
-                            {/*    ))}*/}
-                            {/*</select>*/}
-                            <b style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                {universityUnit[0].name}
-                            </b>
-                        </div>
-                        <div className={'col'}>
-                            <input
-                                type={'date'}
-                                defaultValue={toDateInputValue(new Date())}
-                                onChange={dateCalendarHandler}
-                                onInput={dateCalendarHandler}/>
-                        </div>
-                        <div className={'col'}>
-                            <button className={'btn btn-success'} onClick={hanldeViewButton}>
-                                Показать
-                            </button>
-                        </div>
-                    </div>
-                    </div>
-                        ) : (
-                    <>Loading...</>
-                )}
-                {schedule && auditoriums && universityUnit && !loading ? (
-                    <div>
-                        <br/>
-                        <table className={'table table-bordered border-2'}>
-                            <thead>
-                            <tr>
-                                <th className={'text-center'}
-                                    style={{width: '7%'}}>Дни недели
-                                </th>
-                                {allowAuditoriums?.map((aud) => aud.university_unit === selectUniversityUnit?.id
-                                    && checkAuditoriumSchedule(aud) ? (
-                                        <th key={aud.id} className={'text-center'}>
-                                            {aud.name}
-                                        </th>
-                                    ) : null
-                                )}
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {week.map((day) => (
-                                <tr key={day.toDateString()}>
-                                    <td>{day.toLocaleDateString('ru-RU', options)}</td>
+                    <Box>
+                        <Table colorScheme="simple" borderWidth="3px">
+                            <Thead>
+                                <Tr>
+                                    <Th className={'text-center'} style={{ width: '7%' }} textAlign={"center"} fontSize={11}>
+                                        Дни недели
+                                    </Th>
                                     {allowAuditoriums?.map((aud) =>
-                                        checkAuditoriumSchedule(aud) ? (
-                                            <td key={aud.id}>
-                                                <table className={'table'}>
-                                                    <tbody>
-                                                    {schedule?.results.map((item) => item.auditorium[0].id === aud.id &&
-                                                        getDayFromDate(formatDateToDDMMYYYY(day)) ===
-                                                        item.date.split('-')[0] &&
-                                                        getMonthFromDate(formatDateToDDMMYYYY(day)) ===
-                                                        item.date.split('-')[1] &&
-                                                        getYearFromDate(formatDateToDDMMYYYY(day)) ===
-                                                        item.date.split('-')[2]
-
-                                                            ? (
-                                                                <tr key={item.id}>
-                                                                    <td
-                                                                        className={`text-center + ${setScheduleItemColor(Number(item.id))}`} id={String(item.id)}
-                                                                        onClick={() => handleShowModalInfo(Number(item.id))}
-                                                                    >
-                                                                        {item.name} <br/>
-                                                                        {getShortTime(item.start_time)} - {getShortTime(item.end_time)}<br/>
-                                                                    </td>
-                                                                </tr>
-                                                            ) : null
-                                                    )}
-                                                    </tbody>
-                                                </table>
-                                            </td>
-                                        ):null
+                                        aud.university_unit === selectUniversityUnit?.id && checkAuditoriumSchedule(aud) ? (
+                                            <Th key={aud.id} textAlign={"center"} fontSize={14}>
+                                                {aud.name}
+                                            </Th>
+                                        ) : null
                                     )}
-                                </tr>
-                            ))}
-                            </tbody>
-                        </table>
-                    </div>
-                ) : (
-                    <></>
-                )}
-            </div>
-            <Modal show={showModalInfo} onHide={handleCloseModalInfo}>
-                <Modal.Header closeButton>
-                    <Modal.Title>{modalInfo?.name}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <p>Тип: {modalInfo?.type.name}</p>
-                    <p>Дата: {modalInfo?.date}</p>
-                    <p>Время начала: {modalInfo?.start_time.slice(0, -3)}</p>
-                    <p>Время окончания: {modalInfo?.end_time.slice(0, -3)}</p>
-                    <p>Аудитория: {modalInfo?.auditorium.map((el) => String(el.name) + " ")}</p>
-                    <p>Дополнительная информация: {modalInfo?.info}</p>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseModalInfo}>
-                        Закрыть
-                    </Button>
-                </Modal.Footer>
-            </Modal></>
+                                </Tr>
+                            </Thead>
+                            <Tbody>
+                                {week.map((day) => (
+                                    <Tr key={day.toDateString()}>
+                                        <Td>{day.toLocaleDateString('ru-RU', options)}</Td>
+                                        {allowAuditoriums?.map((aud) =>
+                                            checkAuditoriumSchedule(aud) ? (
+                                                <Td key={aud.id}>
+                                                    <Table variant="simple" colorScheme="simple" >
+                                                        <Tbody>
+                                                            {schedule?.results.map(
+                                                                (item) =>
+                                                                    item.auditorium[0].id === aud.id &&
+                                                                    getDayFromDate(formatDateToDDMMYYYY(day)) === item.date.split('-')[0] &&
+                                                                    getMonthFromDate(formatDateToDDMMYYYY(day)) === item.date.split('-')[1] &&
+                                                                    getYearFromDate(formatDateToDDMMYYYY(day)) === item.date.split('-')[2] ? (
+                                                                        <Tr key={item.id}>
+                                                                            <Td
+                                                                                // className={`text-center + ${setScheduleItemColor(Number(item.id))}`}
+                                                                                backgroundColor={`${setScheduleItemColor(Number(item.id))}`}
+                                                                                className={`text-center`}
+                                                                                id={String(item.id)}
+                                                                                onClick={() => handleShowModalInfo(Number(item.id))}
+                                                                                textAlign={"center"}
+                                                                            >
+                                                                                {item.name} <br />
+                                                                                {getShortTime(item.start_time)} - {getShortTime(item.end_time)}<br />
+                                                                            </Td>
+                                                                        </Tr>
+                                                                    ) : null
+                                                            )}
+                                                        </Tbody>
+                                                    </Table>
+                                                </Td>
+                                            ) : null
+                                        )}
+                                    </Tr>
+                                ))}
+                            </Tbody>
+                        </Table>
+                    </Box>
+                </Box>
+            ) : (
+                <></>
+            )}
+            <Modal isOpen={showModalInfo} onClose={handleCloseModalInfo}>
+                <ModalOverlay />
+                <ModalContent>
+                    <ModalHeader>{modalInfo?.name}</ModalHeader>
+                    <ModalCloseButton colorScheme="blue" />
+                    <ModalBody>
+                        <p>Тип: {modalInfo?.type.name}</p>
+                        <p>Дата: {modalInfo?.date}</p>
+                        <p>Время начала: {modalInfo?.start_time.slice(0, -3)}</p>
+                        <p>Время окончания: {modalInfo?.end_time.slice(0, -3)}</p>
+                        <p>Аудитория: {modalInfo?.auditorium.map((el) => String(el.name) + " ")}</p>
+                        <p>Дополнительная информация: {modalInfo?.info}</p>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button colorScheme="blue" mr={3} onClick={handleCloseModalInfo}>
+                            Закрыть
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
+
+
+        </Box>
     );
 };
 
