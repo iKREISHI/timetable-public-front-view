@@ -283,8 +283,8 @@ const App: React.FC = () => {
                     </Box>
                     <Spacer />
                     <ButtonGroup gap='2'>
-                        <Input type={'date'} defaultValue={toDateInputValue(new Date())} onChange={dateCalendarHandler} />
-                        <Button colorScheme="green" onClick={hanldeViewButton} >
+                        <Input type={'date'} defaultValue={toDateInputValue(new Date())} onChange={dateCalendarHandler} fontSize={15} width={"110%"}/>
+                        <Button colorScheme="green" onClick={hanldeViewButton} fontSize={15} width={"100%"}>
                             Показать
                         </Button>
                     </ButtonGroup>
@@ -314,7 +314,12 @@ const App: React.FC = () => {
                             <Tbody fontSize='2xl'>
                                 {week.map((day) => (
                                     <Tr key={day.toDateString()}>
-                                        <Td>{day.toLocaleDateString('ru-RU', options)}</Td>
+                                        <Td>
+                                            <Text lineHeight="1.2">
+                                                {day.toLocaleDateString('ru-RU', options)}
+                                            </Text>
+
+                                        </Td>
                                         {allowAuditoriums?.map((aud) =>
                                             checkAuditoriumSchedule(aud) ? (
                                                 <Td key={aud.id}>
@@ -336,7 +341,7 @@ const App: React.FC = () => {
                                                                                 textAlign={"center"}
 
                                                                             >
-                                                                                <Text>
+                                                                                <Text lineHeight="1.2">
                                                                                     {item.name} <br />
                                                                                     {getShortTime(item.start_time)} - {getShortTime(item.end_time)}<br />
                                                                                 </Text>
@@ -358,10 +363,10 @@ const App: React.FC = () => {
             ) : (
                 <></>
             )}
-            <Modal isOpen={showModalInfo} onClose={handleCloseModalInfo}>
+            <Modal isOpen={showModalInfo} onClose={handleCloseModalInfo} size={"xl"}>
                 <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader>{modalInfo?.name}</ModalHeader>
+                <ModalContent fontSize={15}>
+                    <ModalHeader fontSize={16}>{modalInfo?.name}</ModalHeader>
                     <ModalCloseButton colorScheme="blue" />
                     <ModalBody>
                         <p>Тип: {modalInfo?.type.name}</p>
@@ -372,7 +377,7 @@ const App: React.FC = () => {
                         <p>Дополнительная информация: {modalInfo?.info}</p>
                     </ModalBody>
                     <ModalFooter>
-                        <Button colorScheme="blue" mr={3} onClick={handleCloseModalInfo}>
+                        <Button colorScheme="blue" mr={3} onClick={handleCloseModalInfo} fontSize={15}>
                             Закрыть
                         </Button>
                     </ModalFooter>
