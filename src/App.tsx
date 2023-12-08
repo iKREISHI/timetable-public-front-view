@@ -192,6 +192,10 @@ const App: React.FC = () => {
 
 
         setLoading(false);
+
+        window.addEventListener('load', function () {
+            window.postMessage({height: document.documentElement.scrollHeight}, '*');
+        });
     };
 
     const getScheduleItemInfo = (url: string): Promise<any> => {
