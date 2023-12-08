@@ -116,6 +116,10 @@ const App: React.FC = () => {
             }
             const jsonData = await response.json();
             setSchedule(jsonData as Schedule);
+
+            // @ts-ignore
+            window.DOIT();
+
             setAuditoriumSchedule();
         } catch (error) {
             console.error('Error fetching schedule:', error);
@@ -192,10 +196,6 @@ const App: React.FC = () => {
 
 
         setLoading(false);
-
-        window.addEventListener('load', function () {
-            window.postMessage({height: document.documentElement.scrollHeight}, '*');
-        });
     };
 
     const getScheduleItemInfo = (url: string): Promise<any> => {
@@ -264,7 +264,6 @@ const App: React.FC = () => {
     return (
         <>
             <div className={'container-xxl'}>
-                <h2 className={'text-center'}>Расписание</h2>
                 {auditoriums && universityUnit ? (
                     <div className={'row align-items-center'}>
                         <div className={'col'}>
@@ -314,33 +313,33 @@ const App: React.FC = () => {
                                     <td>{day.toLocaleDateString('ru-RU', options)}</td>
                                     {allowAuditoriums?.map((aud) =>
                                         checkAuditoriumSchedule(aud) ? (
-                                        <td key={aud.id}>
-                                            <table className={'table'}>
-                                                <tbody>
-                                                {schedule?.results.map((item) => item.auditorium[0].id === aud.id &&
-                                                    getDayFromDate(formatDateToDDMMYYYY(day)) ===
-                                                    item.date.split('-')[0] &&
-                                                    getMonthFromDate(formatDateToDDMMYYYY(day)) ===
-                                                    item.date.split('-')[1] &&
-                                                    getYearFromDate(formatDateToDDMMYYYY(day)) ===
-                                                    item.date.split('-')[2]
+                                            <td key={aud.id}>
+                                                <table className={'table'}>
+                                                    <tbody>
+                                                    {schedule?.results.map((item) => item.auditorium[0].id === aud.id &&
+                                                        getDayFromDate(formatDateToDDMMYYYY(day)) ===
+                                                        item.date.split('-')[0] &&
+                                                        getMonthFromDate(formatDateToDDMMYYYY(day)) ===
+                                                        item.date.split('-')[1] &&
+                                                        getYearFromDate(formatDateToDDMMYYYY(day)) ===
+                                                        item.date.split('-')[2]
 
-                                                    ? (
-                                                        <tr key={item.id}>
-                                                            <td
-                                                                className={`text-center + ${setScheduleItemColor(Number(item.id))}`} id={String(item.id)}
-                                                                onClick={() => handleShowModalInfo(Number(item.id))}
-                                                            >
-                                                                {item.name} <br/>
-                                                                {getShortTime(item.start_time)} - {getShortTime(item.end_time)}<br/>
-                                                            </td>
-                                                        </tr>
-                                                    ) : null
-                                                )}
-                                                </tbody>
-                                            </table>
-                                        </td>
-                                    ):null
+                                                            ? (
+                                                                <tr key={item.id}>
+                                                                    <td
+                                                                        className={`text-center + ${setScheduleItemColor(Number(item.id))}`} id={String(item.id)}
+                                                                        onClick={() => handleShowModalInfo(Number(item.id))}
+                                                                    >
+                                                                        {item.name} <br/>
+                                                                        {getShortTime(item.start_time)} - {getShortTime(item.end_time)}<br/>
+                                                                    </td>
+                                                                </tr>
+                                                            ) : null
+                                                    )}
+                                                    </tbody>
+                                                </table>
+                                            </td>
+                                        ):null
                                     )}
                                 </tr>
                             ))}
