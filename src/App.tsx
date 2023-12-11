@@ -22,16 +22,31 @@ import {
 } from './interfaces';
 
 import {
-    Button, Modal
-} from "react-bootstrap";
+    Box,
+    Button,
+    Modal,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+    Table,
+    Tbody,
+    Td,
+    Th,
+    Thead,
+    Tr,
+    Input, ModalCloseButton, ModalContent, ModalOverlay,
+    Container, Flex, Spacer, Heading, ButtonGroup, Text
+} from '@chakra-ui/react';
 
 const App: React.FC = () => {
     const [apiUrlSchedule, setApiUrlSchedule] = useState<string | undefined>(
         process.env.REACT_APP_URL_API_SHEDULE
     );
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [apiURLAuditorium, setApiUrlAuditorium] = useState<string | undefined>(
         process.env.REACT_APP_URL_API_AUDITORIUM
     );
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [apiURLUniversityUnit, setApiUrlUniversityUnit] = useState<string | undefined>(
         process.env.REACT_APP_URL_API_UNIVERSITY_UNIT
     );
@@ -40,6 +55,7 @@ const App: React.FC = () => {
     const [allowAuditoriums, setAllowAuditoriums] = useState<AuditoriumsInfo[] | null>(null);
     const [universityUnit, setUniversityUnit] = useState<UniversityUnit[] | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [apiScheduleItem, setApiScheduleItem] = useState<string| null >(
         process.env.REACT_APP_URL_API_SCHEDULE_ITEM || null
     );
@@ -101,9 +117,9 @@ const App: React.FC = () => {
     const [modalInfo, setModalInfo] = useState<Event | null>(null);
     const [modalInfoUrl, setModalInfoUrl] = useState<string>("");
 
-    const handleSelectUniversityUnit = (event: ChangeEvent<HTMLSelectElement>) => {
-        setSelectUniversityUnitStr(event.target.value);
-    };
+    // const handleSelectUniversityUnit = (event: ChangeEvent<HTMLSelectElement>) => {
+    //     setSelectUniversityUnitStr(event.target.value);
+    // };
 
     const getScheduleByApi = async (url: string = apiUrlSchedule || ''): Promise<void> => {
         try {
@@ -247,137 +263,138 @@ const App: React.FC = () => {
         if (!item) {
             return "";
         }
-
         let today = new Date();
         let day = new Date(`${item.date.split("-").reverse().join("-")}T00:00:00`);
         today.setHours(0, 0, 0, 0);
 
         if (day.getTime() > today.getTime()) {
-            return "table-success";
+            return "#d1e7dd";
         } else if (day.getTime() < today.getTime()) {
-            return "table-secondary";
+            return "#e2e3e5";
         } else {
-            return "table-danger";
+            return "#f8d7da";
         }
     };
 
     return (
-        <>
-            <div className={'container-xxl'}>
-                {auditoriums && universityUnit ? (
-                    <div>
+        <Box fontSize={15} fontFamily={'var(--bs-body-font-family)'}>
+            <br/>
+            {auditoriums && universityUnit ? (
+                <Flex alignItems='center' >
+                    <Box p='2'>
+                        <Heading fontSize='3xl'>{universityUnit[0].name}</Heading>
+                    </Box>
+                    <Spacer />
+                    <Box >
+                        <Input type={'date'} defaultValue={toDateInputValue(new Date())} onChange={dateCalendarHandler} fontSize={15} width={"30vw"} height={"3vh"}/>
+                        <br/>
+                        <Button colorScheme="green" onClick={hanldeViewButton} fontSize={15} width={"30vw"} height={"3vh"}>
+                            Показать
+                        </Button>
+                    </Box>
+
+                    {/*<ButtonGroup >*/}
+                    {/*    */}
+                    {/*    */}
+                    {/*</ButtonGroup>*/}
+                </Flex>
+            ) : (
+                <>Loading...</>
+            )}
+            {schedule && auditoriums && universityUnit && !loading ? (
+                <Box>
                     <br/>
-                        <div className={'row align-items-center'}>
-                        <br/>
-                        <div className={'col'}>
-
-                            {/*<select onChange={handleSelectUniversityUnit} value={selectUniversityUnitStr || ''}>*/}
-                            {/*    {universityUnit?.map((unit) => (*/}
-                            {/*        <option key={unit.id} value={unit.id}>*/}
-                            {/*            {unit.name}*/}
-                            {/*        </option>*/}
-                            {/*    ))}*/}
-                            {/*</select>*/}
-                            <b style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                {universityUnit[0].name}
-                            </b>
-                        </div>
-                        <div className={'col'}>
-                            <input
-                                type={'date'}
-                                defaultValue={toDateInputValue(new Date())}
-                                onChange={dateCalendarHandler}
-                                onInput={dateCalendarHandler}/>
-                        </div>
-                        <div className={'col'}>
-                            <button className={'btn btn-success'} onClick={hanldeViewButton}>
-                                Показать
-                            </button>
-                        </div>
-                    </div>
-                    </div>
-                        ) : (
-                    <>Loading...</>
-                )}
-                {schedule && auditoriums && universityUnit && !loading ? (
-                    <div>
-                        <br/>
-                        <table className={'table table-bordered border-2'}>
-                            <thead>
-                            <tr>
-                                <th className={'text-center'}
-                                    style={{width: '7%'}}>Дни недели
-                                </th>
-                                {allowAuditoriums?.map((aud) => aud.university_unit === selectUniversityUnit?.id
-                                    && checkAuditoriumSchedule(aud) ? (
-                                        <th key={aud.id} className={'text-center'}>
-                                            {aud.name}
-                                        </th>
-                                    ) : null
-                                )}
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {week.map((day) => (
-                                <tr key={day.toDateString()}>
-                                    <td>{day.toLocaleDateString('ru-RU', options)}</td>
+                    <Box style={{ overflowY: "scroll", height: "100vh" }}>
+                        <Table colorScheme="simple" borderWidth="3px">
+                            <Thead>
+                                <Tr>
+                                    <Th className={'text-center'} style={{ width: '7%' }} textAlign={"center"} fontSize={11}>
+                                        Дни недели
+                                    </Th>
                                     {allowAuditoriums?.map((aud) =>
-                                        checkAuditoriumSchedule(aud) ? (
-                                            <td key={aud.id}>
-                                                <table className={'table'}>
-                                                    <tbody>
-                                                    {schedule?.results.map((item) => item.auditorium[0].id === aud.id &&
-                                                        getDayFromDate(formatDateToDDMMYYYY(day)) ===
-                                                        item.date.split('-')[0] &&
-                                                        getMonthFromDate(formatDateToDDMMYYYY(day)) ===
-                                                        item.date.split('-')[1] &&
-                                                        getYearFromDate(formatDateToDDMMYYYY(day)) ===
-                                                        item.date.split('-')[2]
-
-                                                            ? (
-                                                                <tr key={item.id}>
-                                                                    <td
-                                                                        className={`text-center + ${setScheduleItemColor(Number(item.id))}`} id={String(item.id)}
-                                                                        onClick={() => handleShowModalInfo(Number(item.id))}
-                                                                    >
-                                                                        {item.name} <br/>
-                                                                        {getShortTime(item.start_time)} - {getShortTime(item.end_time)}<br/>
-                                                                    </td>
-                                                                </tr>
-                                                            ) : null
-                                                    )}
-                                                    </tbody>
-                                                </table>
-                                            </td>
-                                        ):null
+                                        aud.university_unit === selectUniversityUnit?.id && checkAuditoriumSchedule(aud) ? (
+                                            <Th key={aud.id} textAlign={"center"} fontSize={14}>
+                                                {aud.name}
+                                            </Th>
+                                        ) : null
                                     )}
-                                </tr>
-                            ))}
-                            </tbody>
-                        </table>
-                    </div>
-                ) : (
-                    <></>
-                )}
-            </div>
-            <Modal show={showModalInfo} onHide={handleCloseModalInfo}>
-                <Modal.Header closeButton>
-                    <Modal.Title>{modalInfo?.name}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <p>Тип: {modalInfo?.type.name}</p>
-                    <p>Дата: {modalInfo?.date}</p>
-                    <p>Время начала: {modalInfo?.start_time.slice(0, -3)}</p>
-                    <p>Время окончания: {modalInfo?.end_time.slice(0, -3)}</p>
-                    <p>Аудитория: {modalInfo?.auditorium.map((el) => String(el.name) + " ")}</p>
-                    <p>Дополнительная информация: {modalInfo?.info}</p>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseModalInfo}>
-                        Закрыть
-                    </Button>
-                </Modal.Footer>
-            </Modal></>
+                                </Tr>
+                            </Thead>
+                            <Tbody fontSize='2xl'>
+                                {week.map((day) => (
+                                    <Tr key={day.toDateString()}>
+                                        <Td>
+                                            <Text lineHeight="1.2">
+                                                {day.toLocaleDateString('ru-RU', options)}
+                                            </Text>
+
+                                        </Td>
+                                        {allowAuditoriums?.map((aud) =>
+                                            checkAuditoriumSchedule(aud) ? (
+                                                <Td key={aud.id}>
+                                                    <Table variant="simple" colorScheme="simple" >
+                                                        <Tbody>
+                                                            {schedule?.results.map(
+                                                                (item) =>
+                                                                    item.auditorium[0].id === aud.id &&
+                                                                    getDayFromDate(formatDateToDDMMYYYY(day)) === item.date.split('-')[0] &&
+                                                                    getMonthFromDate(formatDateToDDMMYYYY(day)) === item.date.split('-')[1] &&
+                                                                    getYearFromDate(formatDateToDDMMYYYY(day)) === item.date.split('-')[2] ? (
+                                                                        <Tr key={item.id}>
+                                                                            <Td
+                                                                                // className={`text-center + ${setScheduleItemColor(Number(item.id))}`}
+                                                                                backgroundColor={`${setScheduleItemColor(Number(item.id))}`}
+                                                                                className={`text-center`}
+                                                                                id={String(item.id)}
+                                                                                onClick={() => handleShowModalInfo(Number(item.id))}
+                                                                                textAlign={"center"}
+
+                                                                            >
+                                                                                <Text lineHeight="1.2">
+                                                                                    {item.name} <br />
+                                                                                    {getShortTime(item.start_time)} - {getShortTime(item.end_time)}<br />
+                                                                                </Text>
+                                                                            </Td>
+                                                                        </Tr>
+                                                                    ) : null
+                                                            )}
+                                                        </Tbody>
+                                                    </Table>
+                                                </Td>
+                                            ) : null
+                                        )}
+                                    </Tr>
+                                ))}
+                            </Tbody>
+                        </Table>
+                    </Box>
+                </Box>
+            ) : (
+                <></>
+            )}
+            <Modal isOpen={showModalInfo} onClose={handleCloseModalInfo} size={"xl"}>
+                <ModalOverlay />
+                <ModalContent fontSize={15}>
+                    <ModalHeader fontSize={16}>{modalInfo?.name}</ModalHeader>
+                    <ModalCloseButton colorScheme="blue" />
+                    <ModalBody>
+                        <p>Тип: {modalInfo?.type.name}</p>
+                        <p>Дата: {modalInfo?.date}</p>
+                        <p>Время начала: {modalInfo?.start_time.slice(0, -3)}</p>
+                        <p>Время окончания: {modalInfo?.end_time.slice(0, -3)}</p>
+                        <p>Аудитория: {modalInfo?.auditorium.map((el) => String(el.name) + " ")}</p>
+                        <p>Дополнительная информация: {modalInfo?.info}</p>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button colorScheme="blue" mr={3} onClick={handleCloseModalInfo} fontSize={15}>
+                            Закрыть
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
+
+
+        </Box>
     );
 };
 
