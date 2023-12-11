@@ -42,9 +42,11 @@ const App: React.FC = () => {
     const [apiUrlSchedule, setApiUrlSchedule] = useState<string | undefined>(
         process.env.REACT_APP_URL_API_SHEDULE
     );
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [apiURLAuditorium, setApiUrlAuditorium] = useState<string | undefined>(
         process.env.REACT_APP_URL_API_AUDITORIUM
     );
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [apiURLUniversityUnit, setApiUrlUniversityUnit] = useState<string | undefined>(
         process.env.REACT_APP_URL_API_UNIVERSITY_UNIT
     );
@@ -53,6 +55,7 @@ const App: React.FC = () => {
     const [allowAuditoriums, setAllowAuditoriums] = useState<AuditoriumsInfo[] | null>(null);
     const [universityUnit, setUniversityUnit] = useState<UniversityUnit[] | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [apiScheduleItem, setApiScheduleItem] = useState<string| null >(
         process.env.REACT_APP_URL_API_SCHEDULE_ITEM || null
     );
@@ -277,17 +280,23 @@ const App: React.FC = () => {
         <Box fontSize={15} fontFamily={'var(--bs-body-font-family)'}>
             <br/>
             {auditoriums && universityUnit ? (
-                <Flex minWidth='max-content' alignItems='center' gap='2'>
+                <Flex alignItems='center' >
                     <Box p='2'>
                         <Heading fontSize='3xl'>{universityUnit[0].name}</Heading>
                     </Box>
                     <Spacer />
-                    <ButtonGroup gap='2'>
-                        <Input type={'date'} defaultValue={toDateInputValue(new Date())} onChange={dateCalendarHandler} fontSize={15} width={"110%"}/>
-                        <Button colorScheme="green" onClick={hanldeViewButton} fontSize={15} width={"100%"}>
+                    <Box >
+                        <Input type={'date'} defaultValue={toDateInputValue(new Date())} onChange={dateCalendarHandler} fontSize={15} width={"30vw"} height={"3vh"}/>
+                        <br/>
+                        <Button colorScheme="green" onClick={hanldeViewButton} fontSize={15} width={"30vw"} height={"3vh"}>
                             Показать
                         </Button>
-                    </ButtonGroup>
+                    </Box>
+
+                    {/*<ButtonGroup >*/}
+                    {/*    */}
+                    {/*    */}
+                    {/*</ButtonGroup>*/}
                 </Flex>
             ) : (
                 <>Loading...</>
@@ -295,7 +304,7 @@ const App: React.FC = () => {
             {schedule && auditoriums && universityUnit && !loading ? (
                 <Box>
                     <br/>
-                    <Box>
+                    <Box style={{ overflowY: "scroll", height: "100vh" }}>
                         <Table colorScheme="simple" borderWidth="3px">
                             <Thead>
                                 <Tr>
