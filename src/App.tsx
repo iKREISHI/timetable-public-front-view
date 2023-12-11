@@ -35,8 +35,10 @@ import {
     Thead,
     Tr,
     Input, ModalCloseButton, ModalContent, ModalOverlay,
-    Container, Flex, Spacer, Heading, ButtonGroup, Text
+    Container, Flex, Spacer, Heading, ButtonGroup, Text,
+    TableContainer,
 } from '@chakra-ui/react';
+import {TabContainer} from "react-bootstrap";
 
 const App: React.FC = () => {
     const [apiUrlSchedule, setApiUrlSchedule] = useState<string | undefined>(
@@ -302,9 +304,8 @@ const App: React.FC = () => {
                 <>Loading...</>
             )}
             {schedule && auditoriums && universityUnit && !loading ? (
-                <Box>
+                <Box display='block' overflowY='scroll'>
                     <br/>
-                    <Box style={{ overflowY: "scroll", height: "100vh" }}>
                         <Table colorScheme="simple" borderWidth="3px">
                             <Thead>
                                 <Tr>
@@ -367,7 +368,6 @@ const App: React.FC = () => {
                                 ))}
                             </Tbody>
                         </Table>
-                    </Box>
                 </Box>
             ) : (
                 <></>
