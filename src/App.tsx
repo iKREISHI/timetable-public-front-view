@@ -35,10 +35,8 @@ import {
     Thead,
     Tr,
     Input, ModalCloseButton, ModalContent, ModalOverlay,
-    Container, Flex, Spacer, Heading, ButtonGroup, Text,
-    TableContainer,
+    Flex, Spacer, Heading, Text
 } from '@chakra-ui/react';
-import {TabContainer} from "react-bootstrap";
 
 const App: React.FC = () => {
     const [apiUrlSchedule, setApiUrlSchedule] = useState<string | undefined>(
@@ -61,6 +59,9 @@ const App: React.FC = () => {
     const [apiScheduleItem, setApiScheduleItem] = useState<string| null >(
         process.env.REACT_APP_URL_API_SCHEDULE_ITEM || null
     );
+    const URL_ROOT = process.env.REACT_APP_API_SOURCE;
+
+
 
     console.log("apiUrlSchedule", apiUrlSchedule);
     console.log("apiURLAuditorium", apiURLAuditorium);
@@ -279,7 +280,8 @@ const App: React.FC = () => {
     };
 
     return (
-        <Box fontSize={15} fontFamily={'var(--bs-body-font-family)'}>
+
+        <Box >
             <br/>
             {auditoriums && universityUnit ? (
                 <Flex alignItems='center' >
@@ -306,10 +308,10 @@ const App: React.FC = () => {
             {schedule && auditoriums && universityUnit && !loading ? (
                 <Box display='block' overflowY='scroll'>
                     <br/>
-                        <Table colorScheme="simple" borderWidth="3px">
+                        <Table colorScheme="simple" borderWidth="3px" style={{borderCollapse:"separate", borderSpacing:"0 1em"}}>
                             <Thead>
                                 <Tr>
-                                    <Th className={'text-center'} style={{ width: '7%' }} textAlign={"center"} fontSize={11}>
+                                    <Th className={'text-center'} width={"7%"} textAlign={"center"} fontSize={11} lineHeight="1.2">
                                         Дни недели
                                     </Th>
                                     {allowAuditoriums?.map((aud) =>
