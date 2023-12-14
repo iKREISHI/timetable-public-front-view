@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { ChakraProvider } from '@chakra-ui/react';
+import {ChakraProvider, extendTheme, StyleFunctionProps} from '@chakra-ui/react';
 
 
 const root = ReactDOM.createRoot(
@@ -11,14 +11,21 @@ const root = ReactDOM.createRoot(
 
 );
 document.title = "Technopark Schedule";
-window.addEventListener('load', function () {
-    window.postMessage({height: document.documentElement.scrollHeight}, '*');
-});
+
+const overrides = extendTheme({
+    styles: {
+        global: (props: StyleFunctionProps) => ({
+            body: {
+                fontFamily: '"Roboto", "Noto", sans-serif"'
+            },
+        }),
+    },
+})
 root.render(
   // <React.StrictMode>
   //   <App />
   // </React.StrictMode>
-    <ChakraProvider>
+    <ChakraProvider theme={extendTheme()}>
         <App />
     </ChakraProvider>,
 );
