@@ -10,7 +10,7 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 
 );
-document.title = "Technopark Schedule";
+document.title = "Расписание Технопарка УПК"; // Technopark Schedule
 
 const overrides = extendTheme({
     styles: {
@@ -25,7 +25,17 @@ root.render(
   // <React.StrictMode>
   //   <App />
   // </React.StrictMode>
-    <ChakraProvider theme={extendTheme()}>
+    <ChakraProvider theme={extendTheme({
+        styles: {
+            global: {
+                "html, body": {
+                    "& :where(img, svg, video, canvas, audio, iframe, embed, object)": {
+                        display: "inline"
+                    },
+                },
+            },
+        },
+    })}>
         <App />
     </ChakraProvider>,
 );
