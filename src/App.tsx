@@ -281,18 +281,18 @@ const App: React.FC = () => {
 
     return (
 
-        <Box >
+        <Box>
             <br/>
             {auditoriums && universityUnit ? (
-                <Flex alignItems='center' >
+                <Flex alignItems='center'>
                     <Box p='2'>
                         <Heading fontSize='3xl'>{universityUnit[0].name}</Heading>
                     </Box>
                     <Spacer />
                     <Box >
-                        <Input type={'date'} defaultValue={toDateInputValue(new Date())} onChange={dateCalendarHandler} fontSize={15} width={"30vw"} height={"3vh"}/>
+                        <Input type={'date'} defaultValue={toDateInputValue(new Date())} onChange={dateCalendarHandler} fontSize={15} width={"30vw"} height={"30px"}/>
                         <br/>
-                        <Button colorScheme="green" onClick={hanldeViewButton} fontSize={15} width={"30vw"} height={"3vh"}>
+                        <Button colorScheme="green" onClick={hanldeViewButton} fontSize={15} width={"30vw"} height={"30px"}>
                             Показать
                         </Button>
                     </Box>

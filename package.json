@@ -26,6 +26,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "pbuild": "mv public/index.html some_free_name.html && mv public/prod.html public/index.html && PUBLIC_URL=/files/vcenter/technopark react-scripts build && mv public/index.html public/prod.html && mv some_free_name.html public/index.html",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
