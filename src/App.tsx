@@ -1,42 +1,17 @@
-import React, { useState, useEffect, ChangeEvent } from 'react';
+import React, {ChangeEvent, useEffect, useState} from 'react';
 import {
-    getWeekDates,
     formatDateToDDMMYYYY,
     formatDateToStrUrl,
     getDayFromDate,
     getMonthFromDate,
-    getYearFromDate,
     getShortTime,
+    getWeekDates,
+    getYearFromDate,
     options,
     toDateInputValue,
 } from './dateUtils';
 
-import {
-    Organizer,
-    Type,
-    Auditorium,
-    Event,
-    Schedule,
-    UniversityUnit,
-    AuditoriumsInfo,
-} from './interfaces';
-
-import {
-    Box,
-    Button,
-    Modal,
-    ModalHeader,
-    ModalBody,
-    ModalFooter,
-    Table,
-    Tbody,
-    Td,
-    Th,
-    Thead,
-    Tr,
-    Input, ModalCloseButton, ModalContent, ModalOverlay,
-    Flex, Spacer, Heading, Text
-} from '@chakra-ui/react';
+import {Auditorium, AuditoriumsInfo, Event, Schedule, UniversityUnit,} from './interfaces';
 
 const App: React.FC = () => {
     const [apiUrlSchedule, setApiUrlSchedule] = useState<string | undefined>(
@@ -56,12 +31,14 @@ const App: React.FC = () => {
     const [universityUnit, setUniversityUnit] = useState<UniversityUnit[] | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [apiScheduleItem, setApiScheduleItem] = useState<string| null >(
+    const [apiScheduleItem, setApiScheduleItem] = useState<string | null>(
         process.env.REACT_APP_URL_API_SCHEDULE_ITEM || null
     );
     const URL_ROOT = process.env.REACT_APP_API_SOURCE;
 
-
+    const handlePageClick = () => {
+        if (showModalInfo) handleCloseModalInfo();
+    }
 
     console.log("apiUrlSchedule", apiUrlSchedule);
     console.log("apiURLAuditorium", apiURLAuditorium);
@@ -147,7 +124,6 @@ const App: React.FC = () => {
             console.log('schedule:', schedule);
         }
     };
-
 
 
     const dateCalendarHandler = (element: ChangeEvent<HTMLInputElement>) => {
@@ -280,123 +256,107 @@ const App: React.FC = () => {
     };
 
     return (
-
-        <Box>
+        <div>
             <br/>
             {auditoriums && universityUnit ? (
-                <Flex alignItems='center'>
-                    <Box p='2'>
-                        <Heading fontSize='3xl'>{universityUnit[0].name}</Heading>
-                    </Box>
-                    <Spacer />
-                    <Box >
-                        <Input type={'date'} defaultValue={toDateInputValue(new Date())} onChange={dateCalendarHandler} fontSize={15} width={"30vw"} height={"30px"}/>
-                        <br/>
-                        <Button colorScheme="green" onClick={hanldeViewButton} fontSize={15} width={"30vw"} height={"30px"}>
-                            Показать
-                        </Button>
-                    </Box>
+                <div className="d-flex align-items-center">
+                    <div className="ms-auto mb-2">
+                        <div className="input-group">
+                            <input type="date" className="form-control" defaultValue={toDateInputValue(new Date())}
+                                   onChange={dateCalendarHandler}
+                                   style={{fontSize: '15px', width: '35vw', height: '30px'}}/>
+                            <span className="input-group-btn">
+                                <button className="btn btn-success" onClick={hanldeViewButton}
+                                        style={{fontSize: '15px', height: '30px'}}>
+                                    Показать
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
 
-                    {/*<ButtonGroup >*/}
-                    {/*    */}
-                    {/*    */}
-                    {/*</ButtonGroup>*/}
-                </Flex>
             ) : (
-                <>Loading...</>
+                <p>Loading...</p>
             )}
             {schedule && auditoriums && universityUnit && !loading ? (
-                <Box display='block' overflowY='scroll'>
+                <div className="block" style={{overflowY: 'scroll'}}>
                     <br/>
-                        <Table colorScheme="simple" borderWidth="3px" style={{borderCollapse:"separate", borderSpacing:"0 1em"}}>
-                            <Thead>
-                                <Tr>
-                                    <Th className={'text-center'} width={"7%"} textAlign={"center"} fontSize={11} lineHeight="1.2">
-                                        Дни недели
-                                    </Th>
-                                    {allowAuditoriums?.map((aud) =>
-                                        aud.university_unit === selectUniversityUnit?.id && checkAuditoriumSchedule(aud) ? (
-                                            <Th key={aud.id} textAlign={"center"} fontSize={14}>
-                                                {aud.name}
-                                            </Th>
-                                        ) : null
-                                    )}
-                                </Tr>
-                            </Thead>
-                            <Tbody fontSize='2xl'>
-                                {week.map((day) => (
-                                    <Tr key={day.toDateString()}>
-                                        <Td>
-                                            <Text lineHeight="1.2">
-                                                {day.toLocaleDateString('ru-RU', options)}
-                                            </Text>
-
-                                        </Td>
-                                        {allowAuditoriums?.map((aud) =>
-                                            checkAuditoriumSchedule(aud) ? (
-                                                <Td key={aud.id}>
-                                                    <Table variant="simple" colorScheme="simple" >
-                                                        <Tbody>
-                                                            {schedule?.results.map(
-                                                                (item) =>
-                                                                    item.auditorium[0].id === aud.id &&
-                                                                    getDayFromDate(formatDateToDDMMYYYY(day)) === item.date.split('-')[0] &&
-                                                                    getMonthFromDate(formatDateToDDMMYYYY(day)) === item.date.split('-')[1] &&
-                                                                    getYearFromDate(formatDateToDDMMYYYY(day)) === item.date.split('-')[2] ? (
-                                                                        <Tr key={item.id}>
-                                                                            <Td
-                                                                                // className={`text-center + ${setScheduleItemColor(Number(item.id))}`}
-                                                                                backgroundColor={`${setScheduleItemColor(Number(item.id))}`}
-                                                                                className={`text-center`}
-                                                                                id={String(item.id)}
-                                                                                onClick={() => handleShowModalInfo(Number(item.id))}
-                                                                                textAlign={"center"}
-
-                                                                            >
-                                                                                <Text lineHeight="1.2">
-                                                                                    {item.name} <br />
-                                                                                    {getShortTime(item.start_time)} - {getShortTime(item.end_time)}<br />
-                                                                                </Text>
-                                                                            </Td>
-                                                                        </Tr>
-                                                                    ) : null
-                                                            )}
-                                                        </Tbody>
-                                                    </Table>
-                                                </Td>
-                                            ) : null
-                                        )}
-                                    </Tr>
-                                ))}
-                            </Tbody>
-                        </Table>
-                </Box>
-            ) : (
-                <></>
-            )}
-            <Modal isOpen={showModalInfo} onClose={handleCloseModalInfo} size={"xl"}>
-                <ModalOverlay />
-                <ModalContent fontSize={15}>
-                    <ModalHeader fontSize={16}>{modalInfo?.name}</ModalHeader>
-                    <ModalCloseButton colorScheme="blue" />
-                    <ModalBody>
-                        <p>Тип: {modalInfo?.type.name}</p>
-                        <p>Дата: {modalInfo?.date}</p>
-                        <p>Время начала: {modalInfo?.start_time.slice(0, -3)}</p>
-                        <p>Время окончания: {modalInfo?.end_time.slice(0, -3)}</p>
-                        <p>Аудитория: {modalInfo?.auditorium.map((el) => String(el.name) + " ")}</p>
-                        <p>Дополнительная информация: {modalInfo?.info}</p>
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button colorScheme="blue" mr={3} onClick={handleCloseModalInfo} fontSize={15}>
-                            Закрыть
-                        </Button>
-                    </ModalFooter>
-                </ModalContent>
-            </Modal>
-
-
-        </Box>
+                    <table className="table"
+                           style={{borderCollapse: 'separate', borderSpacing: '0 1em'}}>
+                        <thead>
+                        <tr>
+                            <th className="text-center" style={{width: '7%', fontSize: '11px', lineHeight: '1.2'}}
+                                align="center">
+                                Дни недели
+                            </th>
+                            {allowAuditoriums?.map((aud) =>
+                                aud.university_unit === selectUniversityUnit?.id && checkAuditoriumSchedule(aud) ? (
+                                    <th key={aud.id} align="center" style={{fontSize: '14px'}}>{aud.name}</th>
+                                ) : null
+                            )}
+                        </tr>
+                        </thead>
+                        <tbody style={{fontSize: '2xl'}}>
+                        {week.map((day) => (
+                            <tr key={day.toDateString()}>
+                                <td>
+                                    <span style={{lineHeight: '1.2'}}>{day.toLocaleDateString('ru-RU', options)}</span>
+                                </td>
+                                {allowAuditoriums?.map((aud) =>
+                                    checkAuditoriumSchedule(aud) ? (
+                                        <td key={aud.id}>
+                                            <table className="table table-bordered border-2">
+                                                <tbody>
+                                                {schedule?.results.map(
+                                                    (item) =>
+                                                        item.auditorium[0].id === aud.id &&
+                                                        getDayFromDate(formatDateToDDMMYYYY(day)) === item.date.split('-')[0] &&
+                                                        getMonthFromDate(formatDateToDDMMYYYY(day)) === item.date.split('-')[1] &&
+                                                        getYearFromDate(formatDateToDDMMYYYY(day)) === item.date.split('-')[2] ? (
+                                                            <tr key={item.id}>
+                                                                <td style={{backgroundColor: `${setScheduleItemColor(Number(item.id))}`}}
+                                                                    className="text-center" id={String(item.id)}
+                                                                    onClick={() => handleShowModalInfo(Number(item.id))}
+                                                                    align="center">
+                                                                    <span
+                                                                        style={{lineHeight: '1.2'}}>{item.name}<br/>{getShortTime(item.start_time)} - {getShortTime(item.end_time)}<br/></span>
+                                                                </td>
+                                                            </tr>
+                                                        ) : null
+                                                )}
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    ) : null
+                                )}
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                </div>
+            ) : null}
+            <div className="modal" style={{display: showModalInfo ? 'block' : 'none'}}>
+                <div className="modal-dialog modal-xl">
+                    <div className="modal-content" style={{fontSize: '15px'}}>
+                        <div className="modal-header" style={{fontSize: '16px'}}>
+                            <h5 className="modal-title">{modalInfo?.name}</h5>
+                        </div>
+                        <div className="modal-body">
+                            <p>Тип: {modalInfo?.type.name}</p>
+                            <p>Дата: {modalInfo?.date}</p>
+                            <p>Время начала: {modalInfo?.start_time.slice(0, -3)}</p>
+                            <p>Время окончания: {modalInfo?.end_time.slice(0, -3)}</p>
+                            <p>Аудитория: {modalInfo?.auditorium.map((el) => String(el.name) + " ")}</p>
+                            <p>Дополнительная информация: {modalInfo?.info}</p>
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-primary" onClick={handleCloseModalInfo}>Закрыть
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     );
 };
 
