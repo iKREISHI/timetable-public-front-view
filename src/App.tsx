@@ -1,42 +1,17 @@
-import React, { useState, useEffect, ChangeEvent } from 'react';
+import React, {ChangeEvent, useEffect, useState} from 'react';
 import {
-    getWeekDates,
     formatDateToDDMMYYYY,
     formatDateToStrUrl,
     getDayFromDate,
     getMonthFromDate,
-    getYearFromDate,
     getShortTime,
+    getWeekDates,
+    getYearFromDate,
     options,
     toDateInputValue,
 } from './dateUtils';
 
-import {
-    Organizer,
-    Type,
-    Auditorium,
-    Event,
-    Schedule,
-    UniversityUnit,
-    AuditoriumsInfo,
-} from './interfaces';
-
-// import {
-//     Box,
-//     Button,
-//     Modal,
-//     ModalHeader,
-//     ModalBody,
-//     ModalFooter,
-//     Table,
-//     Tbody,
-//     Td,
-//     Th,
-//     Thead,
-//     Tr,
-//     Input, ModalCloseButton, ModalContent, ModalOverlay,
-//     Flex, Spacer, Heading, Text
-// } from '@chakra-ui/react';
+import {Auditorium, AuditoriumsInfo, Event, Schedule, UniversityUnit,} from './interfaces';
 
 const App: React.FC = () => {
     const [apiUrlSchedule, setApiUrlSchedule] = useState<string | undefined>(
@@ -61,6 +36,9 @@ const App: React.FC = () => {
     );
     const URL_ROOT = process.env.REACT_APP_API_SOURCE;
 
+    const handlePageClick = () => {
+        if (showModalInfo) handleCloseModalInfo();
+    }
 
     console.log("apiUrlSchedule", apiUrlSchedule);
     console.log("apiURLAuditorium", apiURLAuditorium);
@@ -282,31 +260,33 @@ const App: React.FC = () => {
             <br/>
             {auditoriums && universityUnit ? (
                 <div className="d-flex align-items-center">
-                    <div className="p-2">
-                        <h1 className="display-4">{universityUnit[0].name}</h1>
-                    </div>
-                    <div className="ms-auto">
-                        <input type="date" className="form-control" defaultValue={toDateInputValue(new Date())}
-                               onChange={dateCalendarHandler}
-                               style={{fontSize: '15px', width: '30vw', height: '30px'}}/>
-                        <br/>
-                        <button className="btn btn-success" onClick={hanldeViewButton}
-                                style={{fontSize: '15px', width: '30vw', height: '30px'}}>
-                            Показать
-                        </button>
+                    <div className="ms-auto mb-2">
+                        <div className="input-group">
+                            <input type="date" className="form-control" defaultValue={toDateInputValue(new Date())}
+                                   onChange={dateCalendarHandler}
+                                   style={{fontSize: '15px', width: '35vw', height: '30px'}}/>
+                            <span className="input-group-btn">
+                                <button className="btn btn-success" onClick={hanldeViewButton}
+                                        style={{fontSize: '15px', height: '30px'}}>
+                                    Показать
+                                </button>
+                            </span>
+                        </div>
                     </div>
                 </div>
+
             ) : (
                 <p>Loading...</p>
             )}
             {schedule && auditoriums && universityUnit && !loading ? (
                 <div className="block" style={{overflowY: 'scroll'}}>
                     <br/>
-                    <table className="table table-bordered"
+                    <table className="table"
                            style={{borderCollapse: 'separate', borderSpacing: '0 1em'}}>
                         <thead>
                         <tr>
-                            <th className="text-center" style={{width: '7%', fontSize: '11px', lineHeight: '1.2'}} align="center">
+                            <th className="text-center" style={{width: '7%', fontSize: '11px', lineHeight: '1.2'}}
+                                align="center">
                                 Дни недели
                             </th>
                             {allowAuditoriums?.map((aud) =>
@@ -325,7 +305,7 @@ const App: React.FC = () => {
                                 {allowAuditoriums?.map((aud) =>
                                     checkAuditoriumSchedule(aud) ? (
                                         <td key={aud.id}>
-                                            <table className="table table-bordered">
+                                            <table className="table table-bordered border-2">
                                                 <tbody>
                                                 {schedule?.results.map(
                                                     (item) =>
@@ -354,16 +334,12 @@ const App: React.FC = () => {
                         </tbody>
                     </table>
                 </div>
-            ) : (
-                null
-            )}
+            ) : null}
             <div className="modal" style={{display: showModalInfo ? 'block' : 'none'}}>
                 <div className="modal-dialog modal-xl">
                     <div className="modal-content" style={{fontSize: '15px'}}>
                         <div className="modal-header" style={{fontSize: '16px'}}>
                             <h5 className="modal-title">{modalInfo?.name}</h5>
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"
-                                    onClick={handleCloseModalInfo}></button>
                         </div>
                         <div className="modal-body">
                             <p>Тип: {modalInfo?.type.name}</p>
@@ -384,4 +360,4 @@ const App: React.FC = () => {
     );
 };
 
-    export default App;
+export default App;
