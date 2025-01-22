@@ -138,9 +138,15 @@ const App: React.FC = () => {
     };
 
     const checkAuditoriumSchedule = (aud: Auditorium) => {
-
-        return !(schedule?.results.find((el) => el.auditorium[0].id === aud.id) === undefined);
-    }
+        return !(
+            schedule?.results.find((el) => {
+                if (Array.isArray(el.auditorium) && el.auditorium.length > 0) {
+                    return el.auditorium[0].id === aud.id;
+                }
+                return false;
+            }) === undefined
+        );
+    };
 
     const setAuditoriumSchedule = () => {
         let unit = universityUnit?.find((el) => el.id === Number(selectUniversityUnitStr));
@@ -309,6 +315,8 @@ const App: React.FC = () => {
                                                 <tbody>
                                                 {schedule?.results.map(
                                                     (item) =>
+                                                        Array.isArray(item.auditorium) &&
+                                                        item.auditorium.length > 0 &&
                                                         item.auditorium[0].id === aud.id &&
                                                         getDayFromDate(formatDateToDDMMYYYY(day)) === item.date.split('-')[0] &&
                                                         getMonthFromDate(formatDateToDDMMYYYY(day)) === item.date.split('-')[1] &&
@@ -318,8 +326,8 @@ const App: React.FC = () => {
                                                                     className="text-center" id={String(item.id)}
                                                                     onClick={() => handleShowModalInfo(Number(item.id))}
                                                                     align="center">
-                                                                    <span
-                                                                        style={{lineHeight: '1.2'}}>{item.name}<br/>{getShortTime(item.start_time)} - {getShortTime(item.end_time)}<br/></span>
+                                                                     <span
+                                                                         style={{lineHeight: '1.2'}}>{item.name}<br/>{getShortTime(item.start_time)} - {getShortTime(item.end_time)}<br/></span>
                                                                 </td>
                                                             </tr>
                                                         ) : null
